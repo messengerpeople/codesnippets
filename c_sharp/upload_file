@@ -1,4 +1,5 @@
-public async Task<MediaPostResponse?> UploadMediaAsync(byte[] content, string contentType) {
+public async Task<MediaPostResponse?> UploadMediaAsync(string path, string contentType) {
+            var bytes = File.ReadAllBytes(path);
             var uri = "https://api.messengerpeople.dev/media";
             var byteContent = new ByteArrayContent(content);
             if (!string.IsNullOrWhiteSpace(contentType)) {
