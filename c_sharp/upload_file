@@ -1,29 +1,23 @@
-public async Task<MediaPostResponse?> UploadMediaAsync(string path, string contentType) {
-            // Read contents of the file at the path
-            var bytes = File.ReadAllBytes(path);
-            
-            // Set the File Upload URI
+public async Task<string> UploadMediaAsync(string path) {
+            var client = new HttpClient();
             var uri = "https://api.messengerpeople.dev/media";
+            var accessToken = "<your-token>";
             
-            // Read the byte Content of the File
+            // Read file from path
+            var bytes = File.ReadAllBytes(path);
             var byteContent = new ByteArrayContent(bytes);
-            
-            // If no content Type is set, read content Type of file
-            if (!string.IsNullOrWhiteSpace(contentType)) {
-                byteContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
-                contentType = byteContent.Headers.ContentType;
-            }
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
             
             // Create Request
             using var request = new HttpRequestMessage { Method = new HttpMethod("POST"), RequestUri = uri, Content = byteContent };
             
-            // Add Headers and Authorization
+            // Add Headers
+            var authHeader = new AuthenticationHeaderValue("Bearer", accessToken);
+            request.Headers.Authorization = authHeader;
             request.Headers.Add("Accept", "*/*");
-            request.Headers.Add("Authorization", "Bearer <your-token>");
-            request.Headers.Add("Content-Type", contentType);
-            
-            // Fire the request
-            var response = await this.Client.SendAsync(request).ConfigureAwait(false);
+
+            // Fire the Request
+            var response = await client.SendAsync(request).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) {
                 if (response.Content == null) {
                     throw new HttpRequestException($"server returned -> Status: [{response.StatusCode}] - [{response.ReasonPhrase}]");
@@ -31,6 +25,6 @@ public async Task<MediaPostResponse?> UploadMediaAsync(string path, string conte
                 var err = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 throw new HttpRequestException($"server returned -> Status: [{response.StatusCode}] - [{err}]");
             }
-            var result = await response.Content.ReadAsAsync<MediaPostResponse>().ConfigureAwait(false);
+            var result = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
             return result;
 }
