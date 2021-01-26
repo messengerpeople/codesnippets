@@ -1,15 +1,28 @@
 public async Task<MediaPostResponse?> UploadMediaAsync(string path, string contentType) {
+            // Read contents of the file at the path
             var bytes = File.ReadAllBytes(path);
+            
+            // Set the File Upload URI
             var uri = "https://api.messengerpeople.dev/media";
+            
+            // Read the byte Content of the File
             var byteContent = new ByteArrayContent(bytes);
+            
+            // If no content Type is set, read content Type of file
             if (!string.IsNullOrWhiteSpace(contentType)) {
                 byteContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                contentType = byteContent.Headers.ContentType;
             }
+            
+            // Create Request
             using var request = new HttpRequestMessage { Method = new HttpMethod("POST"), RequestUri = uri, Content = byteContent };
+            
+            // Add Headers and Authorization
             request.Headers.Add("Accept", "*/*");
             request.Headers.Add("Authorization", "Bearer <your-token>");
             request.Headers.Add("Content-Type", contentType);
-            await this.RequestAuthoriser.ApplyAsync(request).ConfigureAwait(false);
+            
+            // Fire the request
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) {
                 if (response.Content == null) {
