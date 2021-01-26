@@ -1,4 +1,4 @@
-public async Task<string> UploadMediaAsync(string path) {
+public async Task<string> UploadMediaAsync(string path, string contentType) {
             var client = new HttpClient();
             var uri = "https://api.messengerpeople.dev/media";
             var accessToken = "<your-token>";
@@ -6,7 +6,9 @@ public async Task<string> UploadMediaAsync(string path) {
             // Read file from path
             var bytes = File.ReadAllBytes(path);
             var byteContent = new ByteArrayContent(bytes);
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+            if (!string.IsNullOrWhiteSpace(contentType)) {
+                byteContent.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+            }
             
             // Create Request
             using var request = new HttpRequestMessage { Method = new HttpMethod("POST"), RequestUri = uri, Content = byteContent };
