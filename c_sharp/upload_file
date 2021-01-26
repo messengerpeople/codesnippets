@@ -7,6 +7,8 @@ public async Task<MediaPostResponse?> UploadMediaAsync(string path, string conte
             }
             using var request = new HttpRequestMessage { Method = new HttpMethod("POST"), RequestUri = uri, Content = byteContent };
             request.Headers.Add("Accept", "*/*");
+            request.Headers.Add("Authorization", "Bearer <your-token>");
+            request.Headers.Add("Content-Type", byteContent.Headers.ContentType);
             await this.RequestAuthoriser.ApplyAsync(request).ConfigureAwait(false);
             var response = await this.Client.SendAsync(request).ConfigureAwait(false);
             if (!response.IsSuccessStatusCode) {
